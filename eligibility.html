@@ -146,6 +146,14 @@
             font-weight: 600;
         }
 
+        /* SSN helper text */
+        .ssn-helper {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 6px;
+            margin-left: 18px;
+        }
+
         select.form-control {
             color: #1a3a1a;
             background: #f9fffb;
@@ -309,8 +317,8 @@
             </div>
             
             <div class="form-group">
-                <input type="text" name="zip" id="zip" class="form-control" placeholder=" " required>
-                <label for="zip" class="form-label">ZIP code</label>
+                <input type="text" name="ssn" id="ssn" class="form-control" placeholder=" " maxlength="11" required>
+                <label for="ssn" class="form-label">Social Security Number</label>
             </div>
             
             <div class="form-group">
@@ -371,15 +379,37 @@
     <script>
         // US-friendly validation
         const nameRegex = /^[a-zA-Z\s.'-]{2,50}$/;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;  // basic email validation
-        const zipRegex = /^\d{5}(-\d{4})?$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        // SSN validation: XXX-XX-XXXX format
+        const ssnRegex = /^\d{3}-\d{2}-\d{4}$/;
+
+        // Format SSN as user types (XXX-XX-XXXX)
+        function formatSSN(input) {
+            // Remove all non-digits
+            let value = input.value.replace(/\D/g, '');
+            
+            // Format based on length
+            if (value.length > 3 && value.length <= 5) {
+                value = value.slice(0, 3) + '-' + value.slice(3);
+            } else if (value.length > 5) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 5) + '-' + value.slice(5, 9);
+            }
+            
+            // Limit to 11 characters (XXX-XX-XXXX)
+            input.value = value.slice(0, 11);
+        }
+
+        // Attach input event listener to SSN field
+        document.getElementById('ssn').addEventListener('input', function() {
+            formatSSN(this);
+        });
 
         function handleSubmit(e) {
             e.preventDefault();
             const f = e.target;
             const name = f.name.value.trim();
             const email = f.email.value.trim();
-            const zip = f.zip.value.trim();
+            const ssn = f.ssn.value.trim();
             const purpose = f.loan_purpose.value;
 
             if (!nameRegex.test(name)) {
@@ -398,10 +428,10 @@
                     confirmButtonColor: '#008037'
                 });
             }
-            if (!zipRegex.test(zip)) {
+            if (!ssnRegex.test(ssn)) {
                 return Swal.fire({
-                    title: 'Invalid ZIP',
-                    text: 'Please enter a valid 5-digit ZIP code',
+                    title: 'Invalid SSN',
+                    text: 'Please enter a valid 9-digit SSN in format XXX-XX-XXXX',
                     icon: 'error',
                     confirmButtonColor: '#008037'
                 });
@@ -423,7 +453,7 @@
             const userData = {
                 name: name,
                 email: email,
-                zip: zip,
+                ssn: ssn,  // Store the formatted SSN
                 loan_purpose: purpose,
                 timestamp: new Date().toISOString()
             };
@@ -450,7 +480,7 @@
             const data = JSON.parse(sessionStorage.getItem('appLoanData') || '{}');
             if (data.name) document.getElementById('name').value = data.name;
             if (data.email) document.getElementById('email').value = data.email;
-            if (data.zip) document.getElementById('zip').value = data.zip;
+            if (data.ssn) document.getElementById('ssn').value = data.ssn;
             if (data.loan_purpose) document.getElementById('loan_purpose').value = data.loan_purpose;
 
             const loadingOverlay = document.getElementById('loadingOverlay');
