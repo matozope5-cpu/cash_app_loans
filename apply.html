@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Apply for Loan | App Loans</title>
+
+  <!-- Favicon (simple inline) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23008037'>$</text></svg>">
+
+  <!-- Fonts & icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- SweetAlert -->
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css" rel="stylesheet">
+
+  <!-- Paystack script -->
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+
+  <style>
+    :root {
+      --primary: #008037;
+      --primary-strong: #00662a;
+      --primary-light: #4caf50;
+      --bg: #f4faf5;
+      --card: #ffffff;
+      --text: #1a2e1a;
+      --text-light: #2d4f2d;
+      --muted: #5a715e;
+      --radius: 24px;
+      --shadow-sm: 0 4px 12px rgba(0, 80, 0, 0.06);
+      --shadow-md: 0 12px 28px rgba(0, 80, 0, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: linear-gradient(145deg, var(--bg) 0%, #e2f0e2 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px 16px 30px;
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Header with text logo */
+    .top {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .logo-text {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(145deg, #00632e, #279b4a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: inline-block;
+      text-shadow: 0 2px 8px rgba(0,128,55,0.12);
+      white-space: nowrap;
+    }
+
+    .welcome {
+      flex: 1;
+    }
+
+    .welcome h1 {
+      font-size: 1.1rem;
+      margin: 0;
+      color: var(--primary-strong);
+      font-weight: 700;
+    }
+
+    .welcome p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    /* Email badge - new addition to show email without asking again */
+    .email-badge {
+      background: #ecf9ec;
+      padding: 8px 16px;
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 12px 0;
+      border: 1px solid #b2ddb2;
+      font-size: 0.9rem;
+    }
+
+    .email-badge i {
+      color: var(--primary);
+    }
+
+    .email-badge span {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* News ticker */
+    .ticker {
+      background: linear-gradient(90deg, rgba(0,128,55,0.06), rgba(0,128,55,0.02));
+      border-radius: 20px;
+      padding: 12px 16px;
+      margin: 16px 0;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(0,128,55,0.1);
+    }
+
+    .ticker-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary-strong);
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+
+    .ticker-list {
+      position: relative;
+      height: 24px;
+    }
+
+    .ticker-item {
+      position: absolute;
+      left: 0;
+      right: 0;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.35s ease;
+      color: #111827;
+      font-size: 0.9rem;
+    }
+
+    .ticker-item.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Main card */
+    .card {
+      background: var(--card);
+      border-radius: 32px;
+      padding: 24px 20px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 20px;
+      border: 1px solid rgba(0,128,55,0.15);
+    }
+
+    .card-title {
+      text-align: center;
+      color: var(--primary-strong);
+      font-weight: 700;
+      margin-bottom: 24px;
+      font-size: 1.2rem;
+    }
+
+    /* Loan grid - 2 columns */
+    .loan-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .loan-option {
+      background: linear-gradient(180deg, #ffffff, #f4faf5);
+      border-radius: 20px;
+      padding: 16px 8px;
+      border: 1.5px solid #d0e2d0;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .loan-option:hover {
+      transform: translateY(-4px);
+      border-color: var(--primary);
+      box-shadow: 0 8px 18px rgba(0,128,55,0.12);
+    }
+
+    .loan-option.selected {
+      border-color: var(--primary);
+      background: #ecf9ec;
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 10px 24px rgba(0,128,55,0.15);
+    }
+
+    .loan-amount {
+      font-weight: 700;
+      color: var(--primary-strong);
+      font-size: 1.1rem;
+    }
+
+    .loan-term {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .processing-fee {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      background: #e1f0e1;
+      padding: 3px 8px;
+      border-radius: 30px;
+      font-weight: 500;
+    }
+
+    /* CTA */
+    .cta-wrap {
+      margin-top: 8px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 18px;
+      border-radius: 50px;
+      border: none;
+      color: white;
+      background: linear-gradient(115deg, #008037, #32a852);
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: 0 12px 24px -8px #008037;
+      transition: transform 0.15s, box-shadow 0.2s;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+      box-shadow: 0 6px 16px #008037;
+    }
+
+    .btn-primary[disabled] {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .error {
+      color: #dc3545;
+      text-align: center;
+      font-size: 0.9rem;
+      display: none;
+      margin-top: 10px;
+    }
+
+    /* Trust row */
+    .trust-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .trust-pill {
+      background: linear-gradient(180deg, rgba(0,128,55,0.06), rgba(0,128,55,0.02));
+      padding: 10px 12px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-strong);
+      border: 1px solid #b2ddb2;
+      font-weight: 500;
+    }
+
+    .trust-pill i {
+      font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+      .trust-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .loan-option { padding: 12px 4px; }
+      .loan-amount { font-size: 1rem; }
+      .logo-text { font-size: 1.6rem; }
+    }
+
+    /* SweetAlert custom */
+    .swal2-popup {
+      border-radius: 28px !important;
+      padding: 28px 20px !important;
+    }
+
+    .swal2-title {
+      color: var(--primary-strong) !important;
+      font-weight: 700 !important;
+    }
+
+    .swal2-confirm {
+      background: linear-gradient(115deg, #008037, #32a852) !important;
+      border-radius: 40px !important;
+      padding: 12px 28px !important;
+      font-weight: 600 !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <!-- Header with text logo -->
+    <div class="top">
+      <div class="logo-text">App Loans</div>
+      <div class="welcome">
+        <h1>Hi <span id="user-name">Customer</span> 👋</h1>
+        <p>Select a loan amount to continue</p>
+      </div>
+    </div>
+
+    <!-- Email badge - shows email from eligibility without asking again -->
+    <div class="email-badge" id="email-badge">
+      <i class="fas fa-envelope"></i>
+      <span id="display-email">Loading email...</span>
+    </div>
+
+    <!-- Ticker (US-friendly messages) -->
+    <div class="ticker" aria-live="polite">
+      <div class="ticker-head"><i class="fas fa-bolt"></i> Recent approvals</div>
+      <div class="ticker-list" id="ticker-container"></div>
+    </div>
+
+    <!-- LOAN OPTIONS - US dollar amounts -->
+    <section class="card">
+      <div class="card-title">Choose your loan</div>
+
+      <div class="loan-grid" id="loan-grid" role="list">
+        <!-- 12 loan options with realistic US amounts and fees -->
+        <div class="loan-option" role="listitem" tabindex="0" data-amount="1000" data-fee="29">
+          <div class="loan-amount">$1,000</div>
+          <div class="loan-term">3 months</div>
+          <div class="processing-fee">Fee: $29</div>
+        </div>
+
+        <div class="loan-option" role="listitem" tabindex="0" data-amount="2500" data-fee="49">
+          <div class="loan-amount">$2,500</div>
+          <div class="loan-term">6 months</div>
+          <div class="processing-fee">Fee: $49</div>
+        </div>
+
+        <div class="loan-option" role="listitem" tabindex="0" data-amount="5000" data-fee="79">
+          <div class="loan-amount">$5,000</div>
+          <div class="loan-term">6 months</div>
+          <div class="processing-fee">Fee: $79</div>
+        </div>
+
+        <div class="loan-option" role="listitem" tabindex="0" data-amount="7500" data-fee="99">
+          <div class="loan-amount">$7,500</div>
+          <div class="loan-term">12 months</div>
+          <div class="processing-fee">Fee: $99</div>
+        </div>
+
+        <div class="loan-option" role="listitem" tabindex="0" data-amount="10000" data-fee="129">
+          <div class="loan-amount">$10,000</div>
+          <div class="loan-term">12 months</div>
+          <div class="processing-fee">Fee: $129</div>
+        </div>
+
+        <div class="loan-option" role="listitem" tabindex="0" data-amount="12500" data-fee="149">
+          <div class="loan-amount">$12,500</div>
+          <div class="loan-term">18 months</div>
+          <div class="processing-fee">Fee: $149</div>
+        </div>
+
+        <div class="loan-option" role="listitem" tabindex="0" data-amount="15000" data-fee="179">
+          <div class="loan-amount">$15,000</div>
+          <div class="loan-term">18 months</div>
+          <div class="processing-fee">Fee: $179</div>
+        </div>
+
+        <div class="loan-option" role="listitem" tabindex="0" data-amount="17500" data-fee="199">
+          <div class="loan-amount">$17,500</div>
+          <div class="loan-term">24 months</div>
+          <div class="processing-fee">Fee: $199</div>
+        </div>
+
+        <div class="loan-option" role="listitem" tabindex="0" data-amount="20000" data-fee="249">
+          <div class="loan-amount">$20,000</div>
+          <div class="loan-term">24 months</div>
+          <div class="processing-fee">Fee: $249</div>
+        </div>
+
+        <div class="loan-option" role="listitem" tabindex="0" data-amount="25000" data-fee="299">
+          <div class="loan-amount">$25,000</div>
+          <div class="loan-term">36 months</div>
+          <div class="processing-fee">Fee: $299</div>
+        </div>
+
+        <div class="loan-option" role="listitem" tabindex="0" data-amount="30000" data-fee="349">
+          <div class="loan-amount">$30,000</div>
+          <div class="loan-term">36 months</div>
+          <div class="processing-fee">Fee: $349</div>
+        </div>
+
+        <div class="loan-option" role="listitem" tabindex="0" data-amount="35000" data-fee="399">
+          <div class="loan-amount">$35,000</div>
+          <div class="loan-term">48 months</div>
+          <div class="processing-fee">Fee: $399</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- CTA -->
+    <div class="cta-wrap">
+      <button id="apply-btn" class="btn-primary" disabled>
+        Continue with application <i class="fas fa-arrow-right"></i>
+      </button>
+      <div class="error" id="error-message">Please select a loan amount</div>
+    </div>
+
+    <!-- Trust badges -->
+    <div class="trust-row">
+      <div class="trust-pill"><i class="fas fa-lock"></i> 256-bit SSL</div>
+      <div class="trust-pill"><i class="fas fa-shield-alt"></i> Privacy first</div>
+      <div class="trust-pill"><i class="fas fa-credit-card"></i> Pay with card</div>
+      <div class="trust-pill"><i class="fas fa-star"></i> 10k+ customers</div>
+    </div>
+
+  </div>
+
+  <!-- SweetAlert -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
+
+  <script>
+    // ==================== CONFIG ====================
+    // Paystack public key (test key - replace with your live key later)
+    const PAYSTACK_PUBLIC_KEY = 'pk_live_0edbd5c2329710431ece6e53e0e854ea785dc6c2';
+    
+    // Get user data from session (from eligibility page)
+    const userData = JSON.parse(sessionStorage.getItem('appLoanData') || '{}');
+    
+    // Redirect if no user data (protection) - updated to check for email instead of phone
+    if (!userData.email || !userData.name) {
+      console.log('Missing user data:', userData);
+      window.location.href = 'eligibility.html';
+    }
+
+    // Display user name and email
+    document.getElementById('user-name').textContent = userData.name || 'there';
+    document.getElementById('display-email').textContent = userData.email || 'email not available';
+
+    // ==================== TICKER ====================
+    const tickerMessages = [
+      "Jennifer from Austin just got approved for $5,000",
+      "Michael in Denver · $12,500 approved 2 mins ago",
+      "Sarah from Miami · $2,500 approved",
+      "David in Chicago · $15,000 approved",
+      "Emily in Seattle · $7,500 approved",
+      "James in NYC · $20,000 approved",
+      "Lisa in Portland · $10,000 approved",
+      "Robert in Dallas · $25,000 approved"
+    ];
+
+    function initTicker() {
+      const container = document.getElementById('ticker-container');
+      tickerMessages.forEach((msg, i) => {
+        const el = document.createElement('div');
+        el.className = 'ticker-item';
+        el.textContent = msg;
+        el.dataset.index = i;
+        container.appendChild(el);
+      });
+      const items = container.querySelectorAll('.ticker-item');
+      if (!items.length) return;
+      let idx = 0;
+      items[idx].classList.add('active');
+      setInterval(() => {
+        items[idx].classList.remove('active');
+        idx = (idx + 1) % items.length;
+        items[idx].classList.add('active');
+      }, 2500);
+    }
+    window.addEventListener('load', initTicker);
+
+    // ==================== LOAN SELECTION ====================
+    const loanGrid = document.getElementById('loan-grid');
+    const loanOptions = Array.from(loanGrid.querySelectorAll('.loan-option'));
+    const applyBtn = document.getElementById('apply-btn');
+    const errorMsg = document.getElementById('error-message');
+
+    let selectedLoan = null; // { amount, fee }
+
+    function formatUSD(amount) {
+      return '$' + Number(amount).toLocaleString('en-US');
+    }
+
+    // Handle selection
+    loanOptions.forEach(opt => {
+      opt.addEventListener('click', () => selectLoan(opt));
+      opt.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          selectLoan(opt);
+        }
+      });
+    });
+
+    function selectLoan(element) {
+      loanOptions.forEach(o => o.classList.remove('selected'));
+      element.classList.add('selected');
+      
+      const amount = Number(element.dataset.amount);
+      const fee = Number(element.dataset.fee);
+      
+      selectedLoan = { amount, fee };
+      
+      // Enable button
+      applyBtn.disabled = false;
+      errorMsg.style.display = 'none';
+      
+      // Store in session for next pages
+      userData.loan_amount = amount;
+      userData.processing_fee = fee;
+      sessionStorage.setItem('appLoanData', JSON.stringify(userData));
+    }
+
+    // Pre-select if returning
+    if (userData.loan_amount) {
+      const match = loanOptions.find(o => Number(o.dataset.amount) === userData.loan_amount);
+      if (match) {
+        setTimeout(() => {
+          match.classList.add('selected');
+          selectedLoan = {
+            amount: userData.loan_amount,
+            fee: userData.processing_fee || Number(match.dataset.fee)
+          };
+          applyBtn.disabled = false;
+        }, 100);
+      }
+    }
+
+    // ==================== PAYSTACK PAYMENT ====================
+    function initializePaystackPayment(email, amount, onSuccess, onClose) {
+      const handler = PaystackPop.setup({
+        key: PAYSTACK_PUBLIC_KEY,
+        email: email,
+        amount: amount * 100, // Paystack uses cents (multiply by 100)
+        currency: 'USD',
+        ref: 'LOAN_' + Math.floor(Math.random() * 1000000000) + '_' + Date.now(),
+        metadata: {
+          customer_name: userData.name,
+          customer_zip: userData.zip,
+          loan_purpose: userData.loan_purpose,
+          custom_fields: [
+            {
+              display_name: "Loan Amount",
+              variable_name: "loan_amount",
+              value: selectedLoan ? selectedLoan.amount : 0
+            },
+            {
+              display_name: "Processing Fee",
+              variable_name: "processing_fee",
+              value: selectedLoan ? selectedLoan.fee : 0
+            }
+          ]
+        },
+        callback: function(response) {
+          // Payment successful
+          onSuccess(response);
+        },
+        onClose: function() {
+          // Payment window closed without completion
+          onClose();
+        }
+      });
+      handler.openIframe();
+    }
+
+    // ==================== APPLY BUTTON ====================
+    applyBtn.addEventListener('click', async () => {
+      if (!selectedLoan) {
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      // Show confirmation dialog with email already populated
+      const confirmResult = await Swal.fire({
+        title: 'Confirm Application',
+        html: `
+          <div style="text-align:center">
+            <div style="background: #ecf9ec; padding: 20px; border-radius: 20px; margin: 15px 0;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span style="color: #4a6b4a;">Loan amount:</span>
+                <span style="font-weight: 700; color: #008037;">${formatUSD(selectedLoan.amount)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span style="color: #4a6b4a;">Processing fee:</span>
+                <span style="font-weight: 600;">${formatUSD(selectedLoan.fee)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px dashed #b2ddb2;">
+                <span style="color: #4a6b4a;">Total today:</span>
+                <span style="font-weight: 800; color: #008037;">${formatUSD(selectedLoan.fee)}</span>
+              </div>
+            </div>
+            <p style="color: #5a715e; font-size: 0.9rem;">You'll pay the processing fee now. Loan funds are disbursed after payment.</p>
+            <div style="background: #f0f7f0; padding: 12px; border-radius: 12px; margin-top: 15px;">
+              <i class="fas fa-envelope" style="color: #008037; margin-right: 8px;"></i>
+              <span style="color: #1a2e1a; font-weight: 500;">Receipt will be sent to: ${userData.email}</span>
+            </div>
+          </div>
+        `,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Pay with card',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#008037'
+      });
+
+      if (!confirmResult.isConfirmed) return;
+
+      // Use email from userData directly - no second prompt
+      const userEmail = userData.email;
+      
+      if (!userEmail) {
+        // This should never happen because we already validated, but just in case
+        Swal.fire({
+          title: 'Error',
+          text: 'Email not found. Please restart the application.',
+          icon: 'error',
+          confirmButtonColor: '#008037'
+        });
+        return;
+      }
+
+      // Show loading
+      Swal.fire({
+        title: 'Preparing payment',
+        text: 'Opening secure payment window...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      // Initialize Paystack
+      initializePaystackPayment(
+        userEmail,
+        selectedLoan.fee, // amount to charge (processing fee)
+        function(successResponse) {
+          // Payment success callback
+          Swal.fire({
+            title: 'Payment Successful!',
+            html: `
+              <div style="text-align:center">
+                <i class="fas fa-check-circle" style="font-size: 64px; color: #22c55e; margin: 15px 0;"></i>
+                <p>Your payment of ${formatUSD(selectedLoan.fee)} was received.</p>
+                <p style="color: #5a715e; margin-top: 10px;">Reference: ${successResponse.reference}</p>
+                <p style="color: #008037; margin-top: 10px;">Receipt sent to: ${userEmail}</p>
+              </div>
+            `,
+            icon: 'success',
+            timer: 2500,
+            showConfirmButton: false
+          });
+
+          // Store approval data
+          const approved = {
+            ...userData,
+            ...selectedLoan,
+            paymentReference: successResponse.reference,
+            paystackTransaction: successResponse.transaction,
+            paystackReference: successResponse.reference,
+            approvedAt: new Date().toISOString()
+          };
+          sessionStorage.setItem('loanApproved', JSON.stringify(approved));
+
+          // Redirect to dashboard
+          setTimeout(() => {
+            window.location.href = 'dash.html';
+          }, 2500);
+        },
+        function() {
+          // Payment closed without completion
+          Swal.fire({
+            title: 'Payment cancelled',
+            text: 'You can complete your application anytime.',
+            icon: 'info',
+            confirmButtonColor: '#008037'
+          });
+        }
+      );
+
+      // Close the loading Swal (Paystack will open)
+      Swal.close();
+    });
+
+    // Keyboard navigation
+    loanGrid.addEventListener('keydown', (e) => {
+      const focusable = loanOptions;
+      const idx = focusable.indexOf(document.activeElement);
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        focusable[(idx + 1) % focusable.length].focus();
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        focusable[(idx - 1 + focusable.length) % focusable.length].focus();
+      }
+    });
+  </script>
+
+</body>
+</html>

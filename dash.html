@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Dashboard | App Loans</title>
+
+  <!-- Favicon (simple inline) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23008037'>$</text></svg>">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <style>
+    :root {
+      --primary: #008037;
+      --primary-light: #4caf50;
+      --primary-strong: #00662a;
+      --bg: #f4faf5;
+      --card: #ffffff;
+      --text: #1a2e1a;
+      --text-light: #2d4f2d;
+      --muted: #5a715e;
+      --border-radius: 24px;
+      --shadow-sm: 0 4px 12px rgba(0, 80, 0, 0.06);
+      --shadow-md: 0 12px 28px rgba(0, 80, 0, 0.12);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      min-height: 100vh;
+      background: linear-gradient(145deg, var(--bg) 0%, #e2f0e2 100%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    /* Header with text logo */
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: 20px 16px;
+      text-align: center;
+    }
+
+    .logo-text {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: white;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: inline-block;
+    }
+
+    .logo-sub {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      background: var(--card);
+      box-shadow: var(--shadow-sm);
+      border-bottom: 1px solid rgba(0,128,55,0.1);
+    }
+
+    .user-greeting {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--primary-strong);
+      font-weight: 600;
+    }
+
+    .user-greeting i {
+      font-size: 1.2rem;
+      color: var(--primary);
+    }
+
+    .logout-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 40px;
+      padding: 10px 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(0,128,55,0.2);
+    }
+
+    .logout-btn:hover {
+      background: var(--primary-strong);
+      transform: translateY(-2px);
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px 16px 30px;
+    }
+
+    .spinner {
+      display: none;
+      width: 50px;
+      height: 50px;
+      margin: 40px auto;
+      border: 4px solid rgba(0,128,55,0.1);
+      border-radius: 50%;
+      border-top: 4px solid var(--primary);
+      border-right: 4px solid var(--primary-light);
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .success-check {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .success-check i {
+      font-size: 4rem;
+      color: #22c55e;
+      background: #ecf9ec;
+      padding: 20px;
+      border-radius: 50%;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .welcome-message {
+      text-align: center;
+      margin: 16px 0 24px;
+    }
+
+    .welcome-title {
+      font-size: 1.8rem;
+      color: var(--primary-strong);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .welcome-subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* Email badge */
+    .email-badge {
+      background: #ecf9ec;
+      padding: 12px 16px;
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 0 0 20px;
+      border: 1px solid #b2ddb2;
+      font-size: 0.95rem;
+    }
+
+    .email-badge i {
+      color: var(--primary);
+    }
+
+    .email-badge span {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .loan-card {
+      background: var(--card);
+      border-radius: 32px;
+      padding: 28px 24px;
+      margin: 20px 0;
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(0,128,55,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .loan-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 120px;
+      height: 120px;
+      background: rgba(0,128,55,0.03);
+      border-radius: 50%;
+      transform: translate(40px, -40px);
+    }
+
+    .loan-status {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 8px 24px;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: #ecf9ec;
+      color: var(--primary-strong);
+      border: 1px solid #b2ddb2;
+    }
+
+    .loan-details {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .detail-item {
+      background: #f4faf5;
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #d0e2d0;
+    }
+
+    .detail-label {
+      font-size: 0.9rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detail-label i {
+      color: var(--primary);
+      width: 20px;
+    }
+
+    .detail-value {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .loan-amount {
+      color: var(--primary-strong);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .payment-reference {
+      background: #ecf9ec;
+      padding: 16px;
+      border-radius: 16px;
+      margin: 20px 0 10px;
+      text-align: center;
+      border: 1px dashed var(--primary);
+    }
+
+    .reference-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .reference-value {
+      font-family: monospace;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary-strong);
+      letter-spacing: 1px;
+    }
+
+    .trust-badges {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .trust-badge {
+      background: var(--card);
+      padding: 12px 16px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid #b2ddb2;
+      color: var(--primary-strong);
+      font-weight: 500;
+    }
+
+    .trust-badge i {
+      color: var(--primary);
+    }
+
+    .next-steps {
+      background: var(--card);
+      border-radius: 24px;
+      padding: 20px;
+      margin: 20px 0;
+      border: 1px solid rgba(0,128,55,0.15);
+    }
+
+    .next-steps h3 {
+      color: var(--primary-strong);
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .steps-list {
+      list-style: none;
+    }
+
+    .steps-list li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #ecf9ec;
+    }
+
+    .steps-list li:last-child {
+      border-bottom: none;
+    }
+
+    .steps-list i {
+      color: var(--primary);
+      font-size: 1rem;
+      width: 24px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 24px 16px;
+      margin-top: 30px;
+      background: var(--card);
+      border-top: 1px solid #b2ddb2;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--primary-strong);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    @media (min-width: 768px) {
+      .trust-badges {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 16px; }
+      .loan-card { padding: 20px; }
+      .welcome-title { font-size: 1.5rem; }
+      .logo-text { font-size: 1.8rem; }
+      .detail-item { padding: 12px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <div class="logo-text">App Loans</div>
+    <div class="logo-sub">fast · fair · green</div>
+  </div>
+
+  <nav class="nav">
+    <div class="user-greeting">
+      <i class="fas fa-user-circle"></i>
+      <span id="user-name-display">Customer</span>
+    </div>
+    <button class="logout-btn" id="logout-btn">
+      <i class="fas fa-sign-out-alt"></i> Sign out
+    </button>
+  </nav>
+
+  <div class="container">
+    <div class="spinner" id="loading-spinner"></div>
+
+    <div id="dashboard-content" style="display:none;">
+      
+      <!-- Success animation -->
+      <div class="success-check">
+        <i class="fas fa-check-circle"></i>
+      </div>
+
+      <div class="welcome-message">
+        <h1 class="welcome-title" id="welcome-title">Congratulations!</h1>
+        <p class="welcome-subtitle">Your loan has been approved</p>
+      </div>
+
+      <!-- Email badge showing user's email -->
+      <div class="email-badge" id="email-badge">
+        <i class="fas fa-envelope"></i>
+        <span id="display-email">loading...</span>
+      </div>
+
+      <!-- Main loan card -->
+      <div class="loan-card">
+        <div class="loan-status">
+          <div class="status-badge" id="status-badge">
+            <i class="fas fa-check-circle" style="margin-right: 6px;"></i> Approved
+          </div>
+        </div>
+
+        <div class="loan-details">
+          <div class="detail-item">
+            <span class="detail-label"><i class="fas fa-dollar-sign"></i> Loan Amount</span>
+            <span class="detail-value loan-amount" id="loan-amount">$0</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label"><i class="fas fa-receipt"></i> Processing Fee</span>
+            <span class="detail-value" id="processing-fee">$0</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label"><i class="fas fa-chart-line"></i> Total Repayment</span>
+            <span class="detail-value" id="repayment-amount">$0</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label"><i class="fas fa-calendar"></i> Disbursement</span>
+            <span class="detail-value">1-2 business days</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label"><i class="fas fa-clock"></i> First Payment Due</span>
+            <span class="detail-value" id="due-date">--/--/----</span>
+          </div>
+        </div>
+
+        <!-- Payment reference section -->
+        <div class="payment-reference" id="payment-reference">
+          <div class="reference-label">Payment Reference</div>
+          <div class="reference-value" id="ref-number">APP-XXXXXX</div>
+        </div>
+      </div>
+
+      <!-- Next steps -->
+      <div class="next-steps">
+        <h3><i class="fas fa-list-check"></i> Next Steps</h3>
+        <ul class="steps-list">
+          <li><i class="fas fa-envelope"></i> Check your email for confirmation</li>
+          <li><i class="fas fa-dollar-sign"></i> Funds will arrive in 1-2 business days</li>
+          <li><i class="fas fa-bell"></i> We'll notify you when funds are sent</li>
+          <li><i class="fas fa-phone-alt"></i> Need help? Contact support</li>
+        </ul>
+      </div>
+
+      <!-- Trust badges -->
+      <div class="trust-badges">
+        <div class="trust-badge">
+          <i class="fas fa-shield-alt"></i><span>FDIC Insured</span>
+        </div>
+        <div class="trust-badge">
+          <i class="fas fa-certificate"></i><span>Licensed Lender</span>
+        </div>
+        <div class="trust-badge">
+          <i class="fas fa-clock"></i><span>24/7 Support</span>
+        </div>
+        <div class="trust-badge">
+          <i class="fas fa-star"></i><span>4.8 Trustpilot</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="#">Home</a>
+      <a href="#">How It Works</a>
+      <a href="#">Terms</a>
+      <a href="#">Privacy</a>
+    </div>
+    <p>© 2025 App Loans. All rights reserved.</p>
+    <p style="margin-top: 8px; font-size: 0.75rem;">NMLS #123456 · Equal Opportunity Lender</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const spinner = document.getElementById('loading-spinner');
+      const content = document.getElementById('dashboard-content');
+      const logoutBtn = document.getElementById('logout-btn');
+
+      // Get data from session storage
+      const approvedData = JSON.parse(sessionStorage.getItem('loanApproved') || '{}');
+      const appLoanData = JSON.parse(sessionStorage.getItem('appLoanData') || '{}');
+      
+      // Combine data (approvedData takes precedence)
+      const userData = { ...appLoanData, ...approvedData };
+
+      // Redirect if no data
+      if (!userData.email || !userData.name) {
+        console.log('No user data found, redirecting to eligibility');
+        window.location.href = 'eligibility.html';
+        return;
+      }
+
+      // Helper functions
+      function showLoading() { 
+        spinner.style.display = 'block'; 
+        content.style.display = 'none';
+      }
+      
+      function hideLoading() { 
+        spinner.style.display = 'none'; 
+        content.style.display = 'block';
+      }
+
+      function formatUSD(amount) {
+        return '$' + Number(amount).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+      }
+
+      function generateReferenceNumber() {
+        const prefix = 'APP';
+        const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        let result = prefix + '-';
+        for (let i = 0; i < 6; i++) {
+          result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+      }
+
+      function formatDate(daysToAdd = 30) {
+        const date = new Date();
+        date.setDate(date.getDate() + daysToAdd);
+        return date.toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+      }
+
+      function loadDashboardData() {
+        // Display user info
+        document.getElementById('user-name-display').textContent = userData.name || 'Customer';
+        document.getElementById('welcome-title').textContent = `Congratulations, ${userData.name.split(' ')[0]}!`;
+        document.getElementById('display-email').textContent = userData.email || 'email not available';
+
+        // Get loan details
+        const loanAmount = userData.loan_amount || 5000;
+        const processingFee = userData.processing_fee || 79;
+        const repaymentAmount = Math.round(loanAmount * 1.1); // 10% interest example
+
+        // Display loan details
+        document.getElementById('loan-amount').textContent = formatUSD(loanAmount);
+        document.getElementById('processing-fee').textContent = formatUSD(processingFee);
+        document.getElementById('repayment-amount').textContent = formatUSD(repaymentAmount);
+        
+        // Due date (30 days from now)
+        document.getElementById('due-date').textContent = formatDate(30);
+        
+        // Reference number
+        const refNumber = userData.paymentReference || generateReferenceNumber();
+        document.getElementById('ref-number').textContent = refNumber;
+
+        // If we have Paystack transaction info, show it
+        if (userData.paystackReference) {
+          document.getElementById('ref-number').textContent = userData.paystackReference;
+        }
+      }
+
+      // Show loading for 2 seconds then display content
+      showLoading();
+      
+      setTimeout(() => {
+        hideLoading();
+        loadDashboardData();
+      }, 2000);
+
+      // Logout functionality
+      logoutBtn.addEventListener('click', function() {
+        showLoading();
+        
+        setTimeout(() => {
+          // Clear all session data
+          sessionStorage.removeItem('loanApproved');
+          sessionStorage.removeItem('appLoanData');
+          sessionStorage.removeItem('userEmail');
+          
+          // Redirect to home page (eligibility)
+          window.location.href = 'eligibility.html';
+        }, 1000);
+      });
+    });
+  </script>
+</body>
+</html>
